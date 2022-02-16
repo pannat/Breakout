@@ -1,6 +1,7 @@
 'use strict';
 
 import { BallFigure } from './src/figures/ball.figure';
+import { ScoreBoardFigure } from './src/figures/score-board.figure';
 import { RectangleFigure } from './src/figures/rectangle.figure';
 import { ActionController } from './src/controllers/action.controller';
 
@@ -17,6 +18,7 @@ const draw = () => {
     drawBricks();
     ball.draw(ctx)
     paddle.draw(ctx);
+    scoreBoard.draw(ctx);
     collisionDetection();
 
     if (ball.coordinateY + deltaY < ball.radius) {
@@ -39,14 +41,14 @@ const draw = () => {
     ball.coordinateY += deltaY;
 
     if (actionController.rightPressed) {
-        paddle.coordinateX += 7;
+        paddle.coordinateX += 3;
 
         if (paddle.coordinateX + paddle.width > canvas.width) {
             paddle.coordinateX = canvas.width - paddle.width;
         }
 
     } else if (actionController.leftPressed) {
-        paddle.coordinateX -= 7;
+        paddle.coordinateX -= 3;
 
         if (paddle.coordinateX < 0) {
             paddle.coordinateX = 0;
@@ -88,12 +90,17 @@ const collisionDetection = () => {
             && ball.coordinateY > brick.figure.coordinateY && ball.coordinateY < brick.figure.coordinateY + brick.figure.height) {
                 deltaY = -deltaY;
                 brick.status = 0;
+                scoreBoard.score++
+
+                if (scoreBoard.score === brickRowCount * brickColumnCount) {
+                    alert('YOU WIN, CONGRATULATIONS');
+                    document.location.reload();
+                    clearInterval(interval);
+                }
             }
         })
     })
 }
-
-
 
 const initialPaddleWidth = 75;
 const initialPaddleHeight = 10;
@@ -104,6 +111,8 @@ const paddle = new RectangleFigure(
     (canvas.width - initialPaddleWidth) / 2,
     canvas.height - initialPaddleHeight
 );
+
+const scoreBoard = new ScoreBoardFigure(COLOR, 8, 20, 0);
 
 const actionController = new ActionController();
 actionController.setHandlers();
