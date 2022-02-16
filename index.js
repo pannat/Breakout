@@ -115,6 +115,12 @@ const paddle = new RectangleFigure(
 const scoreBoard = new ScoreBoardFigure(COLOR, 8, 20, 0);
 
 const actionController = new ActionController();
+actionController.mouseMove = (evt) => {
+    const relativeCoordinateX = evt.clientX - canvas.offsetLeft;
+    if (relativeCoordinateX > 0 && relativeCoordinateX < canvas.width) {
+        paddle.coordinateX = relativeCoordinateX - paddle.width / 2;
+    }
+}
 actionController.setHandlers();
 
 const interval = setInterval(draw, 10);

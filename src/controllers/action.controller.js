@@ -7,6 +7,10 @@ export class ActionController {
         return this._leftPressed;
     }
 
+    set mouseMove(fn) {
+        this._mouseMove = fn;
+    }
+
     constructor() {
         this._rightPressed = false;
         this._leftPressed = false;
@@ -31,5 +35,6 @@ export class ActionController {
 
         document.addEventListener('keydown', pressKeyDown, false);
         document.addEventListener('keyup', pressKeyUp, false);
+        document.addEventListener('mousemove', this._mouseMove, false);
     }
 }
