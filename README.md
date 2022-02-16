@@ -1,2 +1,2 @@
 # Breakout
-Gamedev canvas
+Simple 2D game
