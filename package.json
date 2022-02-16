@@ -1,0 +1,26 @@
+{
+  "name": "breakout",
+  "version": "1.0.0",
+  "description": "Gamedev canvas",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --open",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pannat/Breakout.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pannat/Breakout/issues"
+  },
+  "homepage": "https://github.com/pannat/Breakout#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "5.69.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "4.7.4"
+  }
+}
