@@ -9,16 +9,24 @@ export class ScoreBoardFigure extends BasicFigure {
         this._score = val;
     }
 
+    get lives() {
+        return this._lives;
+    }
 
-    constructor(color, coordinateX, coordinateY, score) {
+    set lives(val) {
+        this._lives = val;
+    }
+
+    constructor(color, coordinateX, coordinateY, score, lives) {
         super(color, coordinateX, coordinateY);
 
         this._score = score;
+        this._lives = lives;
     }
 
     draw(ctx) {
         ctx.font = '16px Arial';
         ctx.fillStyle = this._color;
-        ctx.fillText(`Score: ${this._score}`, this._coordinateX, this._coordinateY);
+        ctx.fillText(`[Score: ${this._score}] Lives: ${this._lives}`, this._coordinateX, this._coordinateY);
     }
 }

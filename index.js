@@ -10,8 +10,22 @@ const COLOR = '#a985c9';
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
+const brickRowCount = 3;
+const brickColumnCount = 5;
+const brickPadding = 10;
+const brickOffsetTop = 30;
+const brickOffsetLeft = 30;
+
+const initialPaddleWidth = 75;
+const initialPaddleHeight = 10;
+
 let deltaX = 2;
 let deltaY = -2;
+
+const showGameOver = (reason) => {
+    alert(reason);
+    document.location.reload();
+}
 
 const draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -19,7 +33,7 @@ const draw = () => {
     ball.draw(ctx)
     paddle.draw(ctx);
     scoreBoard.draw(ctx);
-    collisionDetection();
+    detectBrickCollision();
 
     if (ball.coordinateY + deltaY < ball.radius) {
         deltaY = -deltaY;
@@ -27,9 +41,17 @@ const draw = () => {
         if (ball.coordinateX > paddle.coordinateX && ball.coordinateX < paddle.coordinateX + paddle.width) {
             deltaY = -deltaY;
         } else {
-            alert('GAME OVER');
-            clearInterval(interval);
-            document.location.reload();
+            scoreBoard.lives--
+
+            if (scoreBoard.lives === 0) {
+                showGameOver('YOU LOSE')
+            } else {
+                ball.coordinateX = canvas.width / 2;
+                ball.coordinateY = canvas.height - 30;
+                deltaX = 2;
+                deltaY = -2;
+                paddle.coordinateX = (canvas.width - paddle.width) / 2;
+            }
         }
     }
 
@@ -40,6 +62,11 @@ const draw = () => {
     ball.coordinateX += deltaX;
     ball.coordinateY += deltaY;
 
+    shiftPaddle();
+    requestAnimationFrame(draw);
+};
+
+const shiftPaddle = () => {
     if (actionController.rightPressed) {
         paddle.coordinateX += 3;
 
@@ -54,13 +81,25 @@ const draw = () => {
             paddle.coordinateX = 0;
         }
     }
-};
+}
 
-const brickRowCount = 3;
-const brickColumnCount = 5;
-const brickPadding = 10;
-const brickOffsetTop = 30;
-const brickOffsetLeft = 30;
+const detectBrickCollision = () => {
+    brickColumns.forEach((col) => {
+        col.forEach((brick) => {
+            if (brick.status === 1
+                && ball.coordinateX > brick.figure.coordinateX && ball.coordinateX < brick.figure.coordinateX + brick.figure.width
+                && ball.coordinateY > brick.figure.coordinateY && ball.coordinateY < brick.figure.coordinateY + brick.figure.height) {
+                deltaY = -deltaY;
+                brick.status = 0;
+                scoreBoard.score++
+
+                if (scoreBoard.score === brickRowCount * brickColumnCount) {
+                    showGameOver('YOU WIN, CONGRATULATIONS');
+                }
+            }
+        })
+    })
+}
 
 const createBricks = () => new Array(brickRowCount).fill('').map(() => ({
     status: 1,
@@ -82,28 +121,6 @@ const drawBricks = () => {
 }
 
 const ball = new BallFigure(COLOR, 10, canvas.width / 2, canvas.height - 30);
-const collisionDetection = () => {
-    brickColumns.forEach((col) => {
-        col.forEach((brick) => {
-            if (brick.status === 1
-            && ball.coordinateX > brick.figure.coordinateX && ball.coordinateX < brick.figure.coordinateX + brick.figure.width
-            && ball.coordinateY > brick.figure.coordinateY && ball.coordinateY < brick.figure.coordinateY + brick.figure.height) {
-                deltaY = -deltaY;
-                brick.status = 0;
-                scoreBoard.score++
-
-                if (scoreBoard.score === brickRowCount * brickColumnCount) {
-                    alert('YOU WIN, CONGRATULATIONS');
-                    document.location.reload();
-                    clearInterval(interval);
-                }
-            }
-        })
-    })
-}
-
-const initialPaddleWidth = 75;
-const initialPaddleHeight = 10;
 const paddle = new RectangleFigure(
     COLOR,
     initialPaddleWidth,
@@ -111,9 +128,7 @@ const paddle = new RectangleFigure(
     (canvas.width - initialPaddleWidth) / 2,
     canvas.height - initialPaddleHeight
 );
-
-const scoreBoard = new ScoreBoardFigure(COLOR, 8, 20, 0);
-
+const scoreBoard = new ScoreBoardFigure(COLOR, 8, 20, 0, 3);
 const actionController = new ActionController();
 actionController.mouseMove = (evt) => {
     const relativeCoordinateX = evt.clientX - canvas.offsetLeft;
@@ -123,4 +138,4 @@ actionController.mouseMove = (evt) => {
 }
 actionController.setHandlers();
 
-const interval = setInterval(draw, 10);
+draw();
