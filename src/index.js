@@ -55,8 +55,16 @@ const draw = () => {
     drawBall();
     drawPaddle();
 
-    if (y + dy > canvas.height - RADIUS_BALL || y + dy < RADIUS_BALL) {
+    if (y + dy < RADIUS_BALL) {
         dy = -dy;
+    } else if (y + dy > canvas.height - RADIUS_BALL) {
+        if (x > paddleX && x < paddleX + paddleWidth) {
+            dy = -dy;
+        } else {
+            alert('GAME OVER');
+            clearInterval(interval);
+            document.location.reload();
+        }
     }
 
     if (x + dx > canvas.width - RADIUS_BALL || x + dx < RADIUS_BALL) {
@@ -86,4 +94,4 @@ const draw = () => {
 document.addEventListener('keydown', pressKeyDown, false);
 document.addEventListener('keyup', pressKeyUp, false);
 
-setInterval(draw, 10);
+const interval = setInterval(draw, 10);
