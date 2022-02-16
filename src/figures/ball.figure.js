@@ -1,12 +1,6 @@
-export class BallFigure {
-    get color() {
-        return this._color;
-    }
+import { BasicFigure } from "./basic.figure";
 
-    set color(val) {
-        this._color = val;
-    }
-
+export class BallFigure extends BasicFigure {
     get radius() {
         return this._radius;
     }
@@ -15,11 +9,15 @@ export class BallFigure {
         this._radius = val;
     }
 
-    constructor() {}
+    constructor(color, radius, coordinateX, coordinateY) {
+        super(color, coordinateX, coordinateY);
 
-    draw(ctx, x, y) {
+        this._radius = radius;
+    }
+
+    draw(ctx) {
         ctx.beginPath();
-        ctx.arc(x, y, this.radius, 0, Math.PI*2)
+        ctx.arc(this._coordinateX, this._coordinateY, this._radius, 0, Math.PI*2)
         ctx.fillStyle = this._color;
         ctx.fill();
         ctx.closePath();

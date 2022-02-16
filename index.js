@@ -1,29 +1,28 @@
 'use strict';
 
 import { BallFigure } from './src/figures/ball.figure';
-import { PaddleFigure } from './src/figures/paddle.figure';
-import { ActionController } from "./src/controllers/action.controller";
+import { RectangleFigure } from './src/figures/rectangle.figure';
+import { ActionController } from './src/controllers/action.controller';
 
 
 const COLOR = '#a985c9';
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
+let deltaX = 2;
+let deltaY = -2;
 
 const draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ball.draw(ctx, x, y)
-    paddle.draw(ctx, paddleX, paddleY);
+    drawBricks();
+    ball.draw(ctx)
+    paddle.draw(ctx);
 
-    if (y + dy < ball.radius) {
-        dy = -dy;
-    } else if (y + dy > canvas.height - ball.radius) {
-        if (x > paddleX && x < paddleX + paddle.width) {
-            dy = -dy;
+    if (ball.coordinateY + deltaY < ball.radius) {
+        deltaY = -deltaY;
+    } else if (ball.coordinateY + deltaY > canvas.height - ball.radius) {
+        if (ball.coordinateX > paddle.coordinateX && ball.coordinateX < paddle.coordinateX + paddle.width) {
+            deltaY = -deltaY;
         } else {
             alert('GAME OVER');
             clearInterval(interval);
@@ -31,39 +30,59 @@ const draw = () => {
         }
     }
 
-    if (x + dx > canvas.width - ball.radius || x + dx < ball.radius) {
-        dx = -dx;
+    if (ball.coordinateX + deltaX > canvas.width - ball.radius || ball.coordinateX + deltaX < ball.radius) {
+        deltaX = -deltaX;
     }
 
-    x += dx;
-    y += dy;
+    ball.coordinateX += deltaX;
+    ball.coordinateY += deltaY;
 
     if (actionController.rightPressed) {
-        paddleX += 7;
+        paddle.coordinateX += 7;
 
-        if (paddleX + paddle.width > canvas.width) {
-            paddleX = canvas.width - paddle.width;
+        if (paddle.coordinateX + paddle.width > canvas.width) {
+            paddle.coordinateX = canvas.width - paddle.width;
         }
 
     } else if (actionController.leftPressed) {
-        paddleX -= 7;
+        paddle.coordinateX -= 7;
 
-        if (paddleX < 0) {
-            paddleX = 0;
+        if (paddle.coordinateX < 0) {
+            paddle.coordinateX = 0;
         }
     }
+};
+
+const brickRowCount = 3;
+const brickColumnCount = 5;
+const brickPadding = 10;
+const brickOffsetTop = 30;
+const brickOffsetLeft = 30;
+
+const createBricks = () => new Array(brickRowCount).fill('').map(() => new RectangleFigure(COLOR, 75, 20, 0, 0));
+const brickColumns = new Array(brickColumnCount).fill(createBricks());
+const drawBricks = () => {
+    brickColumns.forEach((columnBricks, indexColumn) => {
+        columnBricks.forEach((brick, indexBrick) => {
+            brick.coordinateX = (indexColumn * (brick.width + brickPadding)) + brickOffsetLeft;
+            brick.coordinateY = (indexBrick * (brick.height + brickPadding)) + brickOffsetTop;
+
+            brick.draw(ctx)
+        })
+    })
 }
 
-const ball = new BallFigure();
-ball.radius = 10;
-ball.color = COLOR;
+const ball = new BallFigure(COLOR, 10, canvas.width / 2, canvas.height - 30);
 
-const paddle = new PaddleFigure();
-paddle.color = COLOR;
-paddle.height = 10;
-paddle.width = 75;
-let paddleX = (canvas.width - paddle.width) / 2;
-let paddleY = canvas.height - paddle.height;
+const initialPaddleWidth = 75;
+const initialPaddleHeight = 10;
+const paddle = new RectangleFigure(
+    COLOR,
+    initialPaddleWidth,
+    initialPaddleHeight,
+    (canvas.width - initialPaddleWidth) / 2,
+    canvas.height - initialPaddleHeight
+);
 
 const actionController = new ActionController();
 actionController.setHandlers();
