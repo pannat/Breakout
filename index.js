@@ -17,6 +17,7 @@ const draw = () => {
     drawBricks();
     ball.draw(ctx)
     paddle.draw(ctx);
+    collisionDetection();
 
     if (ball.coordinateY + deltaY < ball.radius) {
         deltaY = -deltaY;
@@ -59,20 +60,40 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
-const createBricks = () => new Array(brickRowCount).fill('').map(() => new RectangleFigure(COLOR, 75, 20, 0, 0));
-const brickColumns = new Array(brickColumnCount).fill(createBricks());
+const createBricks = () => new Array(brickRowCount).fill('').map(() => ({
+    status: 1,
+    figure: new RectangleFigure(COLOR, 75, 20, 0, 0)
+}));
+const brickColumns = new Array(brickColumnCount).fill('').map(() => createBricks());
+
 const drawBricks = () => {
     brickColumns.forEach((columnBricks, indexColumn) => {
-        columnBricks.forEach((brick, indexBrick) => {
-            brick.coordinateX = (indexColumn * (brick.width + brickPadding)) + brickOffsetLeft;
-            brick.coordinateY = (indexBrick * (brick.height + brickPadding)) + brickOffsetTop;
+        columnBricks.forEach(({status, figure}, indexBrick) => {
+            if (status === 1) {
+                figure.coordinateX = (indexColumn * (figure.width + brickPadding)) + brickOffsetLeft;
+                figure.coordinateY = (indexBrick * (figure.height + brickPadding)) + brickOffsetTop;
 
-            brick.draw(ctx)
+                figure.draw(ctx)
+            }
         })
     })
 }
 
 const ball = new BallFigure(COLOR, 10, canvas.width / 2, canvas.height - 30);
+const collisionDetection = () => {
+    brickColumns.forEach((col) => {
+        col.forEach((brick) => {
+            if (brick.status === 1
+            && ball.coordinateX > brick.figure.coordinateX && ball.coordinateX < brick.figure.coordinateX + brick.figure.width
+            && ball.coordinateY > brick.figure.coordinateY && ball.coordinateY < brick.figure.coordinateY + brick.figure.height) {
+                deltaY = -deltaY;
+                brick.status = 0;
+            }
+        })
+    })
+}
+
+
 
 const initialPaddleWidth = 75;
 const initialPaddleHeight = 10;
